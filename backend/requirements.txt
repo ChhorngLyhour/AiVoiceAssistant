@@ -12,3 +12,5 @@ duckduckgo-search
 langchain_community
 requests
 livekit-api
+flask
+flask-cors
