@@ -38,5 +38,10 @@ def get_token():
         "token": jwt_token
     })
 
+# if __name__ == "__main__":
+#     app.run(host="127.0.0.1", port=8000, debug=True)
+
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8000, debug=True)
+    # Render assigns a dynamic port; fallback to 8000 for local testing
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port, debug=False)
