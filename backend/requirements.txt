@@ -14,3 +14,4 @@ requests
 livekit-api
 flask
 flask-cors
+gunicorn
