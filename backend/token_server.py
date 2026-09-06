@@ -13,22 +13,20 @@ LIVEKIT_URL = os.environ.get("LIVEKIT_URL", "wss://voiceai-1az4n5r4.livekit.clou
 @app.route("/token")
 def get_token():
     identity = "user-" + os.urandom(4).hex()
-    room_name = request.args.get("room", "voice_assistant_room")
     
     token = api.AccessToken(API_KEY, API_SECRET)
     token.identity = identity
     
-    # Attach grants and specify agent room dispatch
+    # Matching grants for agent dispatch
     grant = api.VideoGrants(
         room_join=True,
-        room=room_name,
+        room="voice_assistant_room",
         can_publish=True,
         can_subscribe=True
     )
     
     token.with_grants(grant)
 
-    # Return token along with the explicit LiveKit URL
     return jsonify({
         "url": LIVEKIT_URL,
         "token": token.to_jwt()
