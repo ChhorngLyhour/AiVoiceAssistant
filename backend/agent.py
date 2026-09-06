@@ -1,5 +1,3 @@
-
-
 import os
 from dotenv import load_dotenv
 
@@ -10,7 +8,8 @@ from livekit.plugins.noise_cancellation import BVC
 
 from prompts import AGENT_INSTRUCTION, SESSION_INSTRUCTION
 
-load_dotenv(".env")
+# Load .env locally; Render injects environment variables directly
+load_dotenv()
 
 
 class Assistant(Agent):
@@ -21,14 +20,14 @@ class Assistant(Agent):
 
 
 async def entrypoint(ctx: agents.JobContext):
+    # Connect to the room first
+    await ctx.connect()
 
     session = AgentSession(
         llm=google.realtime.RealtimeModel(
             api_key=os.getenv("GOOGLE_API_KEY"),
-            model="gemini-3.1-flash-live-preview",
+            model="gemini-2.0-flash-exp",  # Correct LiveKit Gemini Multimodal model
             voice="Charon",
-
-            # Put your initial/session instructions here
             instructions=SESSION_INSTRUCTION,
         )
     )
@@ -46,6 +45,6 @@ if __name__ == "__main__":
     agents.cli.run_app(
         agents.WorkerOptions(
             entrypoint_fnc=entrypoint,
-            num_idle_processes=0,  # Prevents spawning extra processes that consume RAM
+            num_idle_processes=0,  # Keeps RAM under Render's 512MB limit
         )
     )
