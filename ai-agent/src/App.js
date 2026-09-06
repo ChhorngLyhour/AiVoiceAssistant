@@ -1,7 +1,7 @@
 
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Room, RoomEvent, Track, createLocalAudioTrack } from "livekit-client";
+import { Room, RoomEvent, Track } from "livekit-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, User, Mic, MicOff, Radio, Loader2 } from "lucide-react";
 
