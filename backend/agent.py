@@ -45,6 +45,7 @@ async def entrypoint(ctx: agents.JobContext):
 if __name__ == "__main__":
     agents.cli.run_app(
         agents.WorkerOptions(
-            entrypoint_fnc=entrypoint
+            entrypoint_fnc=entrypoint,
+            num_idle_processes=0,  # Prevents spawning extra processes that consume RAM
         )
     )
