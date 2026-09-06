@@ -73,26 +73,24 @@ function App() {
   async function joinRoom() {
     setStatus("connecting");
     try {
-      // const res = await fetch("http://127.0.0.1:8000/token");
-      // const res = await fetch("https://aivoiceassistant-backend.onrender.com/token");
-      
-      // Uses the environment variable if defined, otherwise falls back to your Render token server
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://aivoiceassistant-backend.onrender.com";
-    const res = await fetch(`${backendUrl}/token`);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://aivoiceassistant-backend.onrender.com";
+      const res = await fetch(`${backendUrl}/token`);
       if (!res.ok) throw new Error("Failed to fetch token");
       const data = await res.json();
       const { token } = data;
       const url = data.url || "wss://voiceai-1az4n5r4.livekit.cloud";
 
-      const room = new Room();
+      const room = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+      }); 
       roomRef.current = room;
 
-      // Attach subscribed audio (the agent's voice)
-      room.on(RoomEvent.TrackSubscribed, (track) => {
+      // Handle audio playback for the agent's voice automatically
+      room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
         if (track.kind === Track.Kind.Audio) {
-          const el = track.attach();
-          el.style.display = "none";
-          document.body.appendChild(el);
+          const audioElement = track.attach();
+          document.body.appendChild(audioElement);
         }
       });
 
@@ -100,15 +98,12 @@ function App() {
         setStatus("idle");
       });
 
-      // ---- Live transcription: both user STT and agent TTS text arrive
-      // ---- on the "lk.transcription" text-stream topic, tagged by speaker.
+      // Register transcription listener
       room.registerTextStreamHandler("lk.transcription", async (reader, participantInfo) => {
         const streamId = reader.info.id;
         const isLocal = participantInfo.identity === room.localParticipant.identity;
-
         const from = isLocal ? "user" : "bot"; 
 
-        // Seed an empty bubble immediately so the UI feels live
         upsertTranscript(streamId, from, "", true);
 
         try {
@@ -120,13 +115,11 @@ function App() {
         }
       });
 
+      // Connect to the room
       await room.connect(url, token);
 
-      const micTrack = await createLocalAudioTrack({
-        echoCancellation: true,
-        noiseSuppression: true,
-      });
-      await room.localParticipant.publishTrack(micTrack);
+      // Enable local microphone (Triggers Agent Dispatch in LiveKit Cloud)
+      await room.localParticipant.setMicrophoneEnabled(true);
 
       setStatus("connected");
     } catch (err) {
