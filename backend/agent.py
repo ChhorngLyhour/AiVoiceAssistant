@@ -8,9 +8,7 @@ from livekit.plugins.noise_cancellation import BVC
 
 from prompts import AGENT_INSTRUCTION, SESSION_INSTRUCTION
 
-# Load .env locally; Render injects environment variables directly
 load_dotenv()
-
 
 class Assistant(Agent):
     def __init__(self) -> None:
@@ -18,15 +16,14 @@ class Assistant(Agent):
             instructions=AGENT_INSTRUCTION
         )
 
-
 async def entrypoint(ctx: agents.JobContext):
-    # Connect to the room first
+    # Connect worker to the room assigned by LiveKit
     await ctx.connect()
 
     session = AgentSession(
         llm=google.realtime.RealtimeModel(
             api_key=os.getenv("GOOGLE_API_KEY"),
-            model="gemini-2.0-flash-exp",  # Correct LiveKit Gemini Multimodal model
+            model="gemini-2.0-flash-exp",
             voice="Charon",
             instructions=SESSION_INSTRUCTION,
         )
@@ -40,11 +37,10 @@ async def entrypoint(ctx: agents.JobContext):
         ),
     )
 
-
 if __name__ == "__main__":
     agents.cli.run_app(
         agents.WorkerOptions(
             entrypoint_fnc=entrypoint,
-            num_idle_processes=0,  # Keeps RAM under Render's 512MB limit
+            num_idle_processes=0,
         )
     )

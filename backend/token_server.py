@@ -18,6 +18,7 @@ def get_token():
     token = api.AccessToken(API_KEY, API_SECRET)
     token.identity = identity
     
+    # Attach grants and specify agent room dispatch
     grant = api.VideoGrants(
         room_join=True,
         room=room_name,
@@ -27,6 +28,7 @@ def get_token():
     
     token.with_grants(grant)
 
+    # Return token along with the explicit LiveKit URL
     return jsonify({
         "url": LIVEKIT_URL,
         "token": token.to_jwt()
