@@ -17,12 +17,15 @@ def get_token():
     token = api.AccessToken(API_KEY, API_SECRET)
     token.identity = identity
     
-    # Matching grants for agent dispatch
+    # Enable automatic agent dispatch on room join
     grant = api.VideoGrants(
         room_join=True,
         room="voice_assistant_room",
         can_publish=True,
-        can_subscribe=True
+        can_subscribe=True,
+        room_config=api.RoomConfiguration(
+            agents=[api.RoomAgent(dispatch_on_create=True)]
+        )
     )
     
     token.with_grants(grant)

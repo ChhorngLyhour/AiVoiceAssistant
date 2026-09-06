@@ -41,6 +41,6 @@ if __name__ == "__main__":
     agents.cli.run_app(
         agents.WorkerOptions(
             entrypoint_fnc=entrypoint,
-            num_idle_processes=0,
+            num_idle_processes=1, # Keep 1 worker active so LiveKit can immediately assign the job
         )
     )
