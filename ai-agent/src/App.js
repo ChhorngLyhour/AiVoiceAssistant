@@ -74,7 +74,11 @@ function App() {
     setStatus("connecting");
     try {
       // const res = await fetch("http://127.0.0.1:8000/token");
-      const res = await fetch("https://aivoiceassistant-backend.onrender.com/token");
+      // const res = await fetch("https://aivoiceassistant-backend.onrender.com/token");
+      
+      // Uses the environment variable if defined, otherwise falls back to your Render token server
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://aivoiceassistant-backend.onrender.com";
+    const res = await fetch(`${backendUrl}/token`);
       if (!res.ok) throw new Error("Failed to fetch token");
       const data = await res.json();
       const { token } = data;
