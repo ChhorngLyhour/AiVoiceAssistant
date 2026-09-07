@@ -4,21 +4,20 @@ const cors = require('cors');
 const { AccessToken } = require('livekit-server-sdk');
 
 const app = express();
-
-// Enable CORS so your Netlify app can request tokens
 app.use(cors());
 
 app.get('/token', async (req, res) => {
   try {
-    const roomName = req.query.room || 'voice-room-' + Math.random().toString(36).substring(7);
-    const participantName = 'user-' + Math.random().toString(36).substring(7);
-
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
 
     if (!apiKey || !apiSecret) {
-      return res.status(500).json({ error: "Missing LiveKit API Key or Secret on server" });
+      console.error("Missing API Key or Secret");
+      return res.status(500).json({ error: "Missing LiveKit credentials on server" });
     }
+
+    const roomName = req.query.room || 'voice_assistant_room';
+    const participantName = 'user-' + Math.random().toString(36).substring(7);
 
     const at = new AccessToken(apiKey, apiSecret, {
       identity: participantName,
@@ -30,6 +29,7 @@ app.get('/token', async (req, res) => {
       canPublish: true,
       canSubscribe: true,
       roomCreate: true,
+      roomAdmin: true,
     });
 
     const token = await at.toJwt();
@@ -39,12 +39,12 @@ app.get('/token', async (req, res) => {
       url: process.env.LIVEKIT_URL || "wss://voiceai-1az4n5r4.livekit.cloud",
     });
   } catch (error) {
-    console.error("Error generating token:", error);
+    console.error("Token generation error:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Token server running on port ${PORT}`);
+  console.log(`🚀 Node.js Token server running on port ${PORT}`);
 });
